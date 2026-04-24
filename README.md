@@ -1,4 +1,4 @@
-# Insurance Claim Frequency Modeling using Poisson GLM
+# Insurance Pricing Model using Poisson & Gamma GLMs
 
 This project develops a Poisson Generalized Linear Model (GLM) to predict insurance claim frequency using real-world policy data. The goal is to identify key risk drivers and improve model performance through feature engineering and model selection.
 
@@ -6,12 +6,35 @@ This project develops a Poisson Generalized Linear Model (GLM) to predict insura
 
 ## Modeling Approach
 
-A Poisson GLM with a log link function was used to model claim counts. Exposure was incorporated as an offset to account for differences in policy duration, allowing claim frequency to be modeled on a per-unit time basis.
+The pricing model is built in three stages:
 
-Feature engineering was applied to:
-- Capture nonlinear relationships (quadratic driver age)
-- Handle skewed variables (log-transformed population density)
-- Improve both interpretability and model fit
+### 1. Frequency Model (Poisson GLM)
+
+A Poisson GLM with a log link function was used to model claim counts. Exposure was incorporated as an offset to account for differences in policy duration.
+
+This models:
+> “How often does a policyholder file a claim?”
+
+---
+
+### 2. Severity Model (Gamma GLM)
+
+A Gamma GLM with a log link function was used to model claim size, using only policies with observed claims.
+
+This models:
+> “How large is a claim when it occurs?”
+
+---
+
+### 3. Expected Loss & Pricing
+
+The two components were combined:
+
+Expected Loss = Predicted Frequency × Predicted Severity
+
+A 30% loading factor was applied:
+
+Premium = Expected Loss × (1 + 0.30)
 
 ---
 
@@ -19,7 +42,10 @@ Feature engineering was applied to:
 
 This project uses the **French Motor Third-Party Liability Claims dataset (freMTPL2)**, which contains policy-level information on claim counts, exposure, driver characteristics, vehicle attributes, and geographic factors.
 
-- Kaggle source: https://www.kaggle.com/datasets/karansarpal/fremtpl2-french-motor-tpl-insurance-claims  
+- Kaggle source: 
+https://www.kaggle.com/datasets/karansarpal/fremtpl2-french-motor-tpl-insurance-claims  
+https://www.kaggle.com/datasets/floser/fremtpl2sev
+
 - Original dataset: https://www.openml.org/d/41214  
 
 ---
@@ -37,11 +63,21 @@ The model was improved by:
 
 ---
 
+## Severity Model Selection
+
+Although several variables (vehicle age, fuel type, and BonusMalus) were not individually statistically significant in the severity model, removing them led to a substantial increase in AIC.
+
+Therefore, these variables were retained, as they improve overall model fit. This highlights that model selection should consider overall performance rather than relying solely on individual p-values.
+
+---
+
 ## Results
 
-The final model achieved a reduction of **over 70 AIC points** compared to the baseline model, indicating a significantly improved fit.
+- The frequency model achieved a reduction of **over 70 AIC points** compared to the baseline model  
+- The severity model exhibited weaker explanatory power, reflecting the high variability of claim sizes  
+- Removing variables from the severity model increased AIC significantly, so the full model was retained  
 
-Geographic area variables were removed, as they did not improve model performance after accounting for population density.
+The combined model produces realistic expected losses and premiums for each policy.
 
 ---
 
@@ -53,15 +89,17 @@ Geographic area variables were removed, as they did not improve model performanc
 - **Vehicle power** is a significant predictor, with each unit increase associated with approximately a **1.7% increase** in claim frequency  
 - **Fuel type** has a discrete effect, with regular fuel vehicles associated with approximately **7% higher** claim frequency than diesel vehicles  
 - **Population density** is positively associated with risk, with denser areas exhibiting approximately **3% higher** claim frequency  
+- **Claim severity** is significantly more variable and less predictable than frequency, consistent with real-world insurance data  
 
 ---
 
 ## Visualizations
 
-The project includes visualizations of predicted claim frequency:
+The project includes visualizations of:
 
-- Driver age vs predicted risk (nonlinear relationship)
-- BonusMalus vs predicted risk (strongest driver)
+- Driver age vs predicted claim frequency  
+- BonusMalus vs predicted claim frequency  
+- Premium distribution (log scale), showing heavy-tailed risk behavior  
 
 ---
 
@@ -73,6 +111,9 @@ The project includes visualizations of predicted claim frequency:
 - Feature engineering and transformation
 - Model evaluation using AIC
 - Interpretation of model coefficients
+- Gamma regression (severity modeling)
+- Data merging across different granularities (policy vs claim level)
+- End-to-end insurance pricing pipeline
 
 ---
 
