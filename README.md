@@ -93,6 +93,36 @@ The combined model produces realistic expected losses and premiums for each poli
 
 ---
 
+## Real-World Considerations
+
+While the model produces policy-level premium estimates based on expected loss, real-world insurance pricing incorporates additional constraints and adjustments.
+
+### Extreme Premium Values
+
+The model occasionally produces very large premium values for high-risk policies due to the multiplicative combination of frequency and severity. These values reflect high predicted expected losses rather than realistic prices.
+
+In practice, insurers would not directly charge such premiums.
+
+### Pricing Controls
+
+What would likely happen:
+
+- **Premium caps** to limit extreme pricing  
+- **Underwriting rules** to reject or manually review high-risk policies  
+- **Risk pooling and reinsurance** to share large losses  
+- **Smoothing techniques** to reduce sensitivity to extreme predictions  
+
+### Model vs Business Decision
+
+This model represents a **pure statistical estimate of risk**.  
+Final pricing decisions involve additional business, regulatory, and competitive considerations beyond the scope of this model.
+
+---
+
+These adjustments ensure that pricing remains both financially sustainable and market-competitive.
+
+---
+
 ## Visualizations
 
 The project includes visualizations of:
